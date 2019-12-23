@@ -1,0 +1,2 @@
+include ':app', ':alarmclock'
+rootProject.name='AlarmClockLib'

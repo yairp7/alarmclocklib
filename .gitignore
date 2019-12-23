@@ -1,0 +1,16 @@
+*.iml
+.gradle
+gradle/
+gradlew
+gradlew.bat
+local.properties
+.idea/caches
+.idea/libraries
+.idea/codeStyles
+.idea/*.xml
+.DS_Store
+build/
+captures/
+.externalNativeBuild
+.cxx
+alarmclock/bintray_upload.sh
