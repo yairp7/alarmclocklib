@@ -14,6 +14,12 @@ buildscript {
     }
 }
 
+ext {
+    versionCode = 3
+    versionName = "0.1.2"
+    rootProject.ext.roomVersion = "2.2.3"
+}
+
 allprojects {
     repositories {
         google()

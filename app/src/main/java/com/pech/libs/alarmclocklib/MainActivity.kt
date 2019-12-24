@@ -2,9 +2,14 @@ package com.pech.libs.alarmclocklib
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import com.pech.libs.alarmclock.AlarmLib
+import com.pech.libs.alarmclock.alarms.BaseAlarm
+import com.pech.libs.alarmclock.database.AlarmsDatabase
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -17,6 +22,9 @@ class MainActivity : AppCompatActivity() {
     var day: Int = 0
     var hour: Int = 0
     var minute: Int = 0
+
+    private var workerThread: HandlerThread? = null
+    private var workerHandler: Handler? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +47,7 @@ class MainActivity : AppCompatActivity() {
                     _, y, m, d ->
                         dateBtn!!.text = "$d/${m + 1}/$y"
                         this.year = y
-                        this.month = m + 1
+                        this.month = m
                         this.day = d
                 }, year, month, day)
             datePickerDialog.show()
@@ -49,15 +57,37 @@ class MainActivity : AppCompatActivity() {
             val timePickerDialog = TimePickerDialog(this,
                 TimePickerDialog.OnTimeSetListener {
                         _, h, m ->
-                    timeBtn!!.text = "$h:$m"
+                    var mStr: String = m.toString()
+                    if(m < 10) mStr = "0$mStr"
+                    timeBtn!!.text = "$h:$mStr"
                     this.hour = h
                     this.minute = m
                 }, hour, minute, true)
             timePickerDialog.show()
         }
 
-        alarmBtn!!.setOnClickListener {
+        workerThread = HandlerThread("AlarmsWorkerThread")
+        workerThread!!.start()
+        workerHandler = Handler(workerThread!!.looper)
 
+        workerHandler!!.post {
+            AlarmLib.init(AlarmsDatabase.buildDatabase(applicationContext))
         }
+
+        alarmBtn!!.setOnClickListener {
+            workerHandler!!.post {
+                addAlarm()
+            }
+        }
+    }
+
+    private fun addAlarm() {
+        val c = Calendar.getInstance()
+        val listAlarms: List<BaseAlarm>? = AlarmLib.getAlarms()
+        val alarmId: Int = listAlarms!!.size + 1
+        c.set(this.year, this.month, this.day, this.hour, this.minute)
+        val alarmTimeInMillis = c.timeInMillis
+        val alarm: TestAlarm = TestAlarm(alarmId, alarmTimeInMillis, "{}")
+        AlarmLib.addAlarm(applicationContext, alarm)
     }
 }

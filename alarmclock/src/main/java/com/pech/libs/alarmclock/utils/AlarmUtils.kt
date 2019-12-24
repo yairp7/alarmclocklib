@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Looper
 import com.pech.libs.alarmclock.AlarmReceiver
 import com.pech.libs.alarmclock.alarms.BaseAlarm
 import com.pech.libs.alarmclock.database.Alarm
@@ -18,12 +19,12 @@ class AlarmUtils {
          * Setup an alarm with an alarmId to be used later to retrieve
          * the specific alarm's data, and alarmCode to be used to disable the alarm.
          */
-        fun setAlarm(context: Context, timeInMillis: Long, alarmId: String, alarmCode: Int) {
+        fun setAlarm(context: Context, timeInMillis: Long, alarmId: Int) {
             val alarmManager: AlarmManager =
                 context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, AlarmReceiver::class.java)
             intent.putExtra(BaseAlarm.ALARM_ID, alarmId)
-            val pendingIntent = PendingIntent.getBroadcast(context, alarmCode, intent, 0)
+            val pendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, 0)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 alarmManager.setExact(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
@@ -35,10 +36,10 @@ class AlarmUtils {
         /**
          * Disable an alarm using the alarmCode used in the setAlarm method
          */
-        fun disableAlarm(context: Context, alarmCode: Int) {
+        fun disableAlarm(context: Context, alarmId: Int) {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, AlarmReceiver::class.java)
-            val pendingIntent = PendingIntent.getBroadcast(context, alarmCode, intent, 0)
+            val pendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, 0)
             alarmManager.cancel(pendingIntent)
         }
 
@@ -77,6 +78,10 @@ class AlarmUtils {
             }
 
             return alarmObj
+        }
+
+        fun isWorkerThread() {
+            if(Looper.myLooper() == Looper.getMainLooper()) throw Exception("Must be called from worker thread!")
         }
     }
 }

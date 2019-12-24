@@ -97,7 +97,7 @@ class AlarmsDatabaseInstrumentedTests {
     @Throws(Exception::class)
     fun loadAlarm() {
         val alarm: Alarm = TestUtils.randAlarmEntityWithSpecificTimeAndRepeated(System.currentTimeMillis() + 10000, true)
-
+        alarmDao.insert(alarm)
         val alarmObj: BaseAlarm? = AlarmUtils.loadAlarm(db, alarm.alarmId)
         Assert.assertNotNull(alarmObj)
     }

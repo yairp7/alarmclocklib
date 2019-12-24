@@ -19,7 +19,7 @@ abstract class BaseAlarm(private var alarmId: Int, private var timeInMillis: Lon
         private set
 
     fun toEntity(): Alarm {
-        return Alarm(alarmId, javaClass.name, timeInMillis, isRepeated, getExtra())
+        return Alarm(alarmId, javaClass.name, timeInMillis, isRepeated, extra)
     }
 
     fun setRepeated(isRepeated: Boolean) {
@@ -35,5 +35,4 @@ abstract class BaseAlarm(private var alarmId: Int, private var timeInMillis: Lon
 
     abstract fun load(context: Context?)
     abstract fun play(context: Context?)
-    abstract fun getExtra(): String?
 }
